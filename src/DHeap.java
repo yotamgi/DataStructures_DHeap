@@ -54,12 +54,12 @@ public class DHeap {
 	 * indices of arrays in Java start from 0.
 	 */
 	public int parent(int i) {
-		return 999;
-	} // just for illustration - should be replaced by student code
+		return (i-1)/d;
+	} 
 
 	public int child(int i, int k) {
-		return 999;
-	} // just for illustration - should be replaced by student code
+		return d*i + k + 1;
+	} 
 
 	/**
 	 * public void Insert(DHeap_Item item)
@@ -69,7 +69,8 @@ public class DHeap {
 	 * postcondition: isHeap()
 	 */
 	public void Insert(DHeap_Item item) {
-		return;// should be replaced by student code
+		array[size++] = item;
+		// TODO: Heapify up
 	}
 
 	/**
