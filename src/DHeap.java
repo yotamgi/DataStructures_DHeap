@@ -35,17 +35,17 @@ public class DHeap {
 	 */
 	public void arrayToHeap(DHeap_Item[] array1) { 
 		int n = array1.length; 
-		if (n > max_size)
-			max_size = n;		
-		size = n;
-		for (int i=0;i<n;i++){
-			array[i] = array1[i];
-			array[i].setPos(i);
-		}	
-		heapifyDown(parent(n-1));
-		for (int i=n-2;i>0;i--){
-			if (parent(i)!=parent(i+1))
-				heapifyDown(parent(i));
+		if (n <= max_size){		
+			size = n;
+			for (int i=0;i<n;i++){
+				array[i] = array1[i];
+				array[i].setPos(i);
+			}	
+			heapifyDown(parent(n-1));
+			for (int i = n-2; i > 0; i--){
+				if (parent(i)!=parent(i+1))
+					heapifyDown(parent(i));
+			}
 		}
 	}
 
@@ -60,19 +60,15 @@ public class DHeap {
 	public boolean isHeap() {
 		if (size == 0)
 			return true;
-		if (array[0] == null)
-			return false;
-		if (array[0].getPos()!= 0)
-			return false;
-		for (int i=1;i<size;i++){
+		for (int i=0;i<size;i++){
 			DHeap_Item tmp = array[i]; 
 			if (tmp == null)
 				return false;
-			if (tmp.getPos()!=i)
+			if (tmp.getPos()!= i)
 				return false;
 			DHeap_Item parent = array[parent(i)];
-			if (parent.getKey()>tmp.getKey())
-				return false;
+			if (parent.getKey() > tmp.getKey())
+				return false;			
 		}
 		return true;
 	}
@@ -102,10 +98,41 @@ public class DHeap {
 	 * precondition: item != null isHeap() size < max_size
 	 * 
 	 * postcondition: isHeap()
+	 * 
+	 * O(log_d_(n))
 	 */
 	public void Insert(DHeap_Item item) {
-		array[size++] = item;
-		// TODO: Heapify up
+		 if ((size < max_size) && (item != null)) {
+			 array[size] = item;
+			 array[size].setPos(size);
+			 heapifyUp(size);
+	         size++;	        	       
+		 }
+	}
+
+	
+	/**
+	 * helping function 
+	 * 
+	 * Switching the heap item in place i with it's parent
+	 * if needed. Then it calls itself with the parent's
+	 * place as the new i.
+	 * There may be O(log_d_(n)) calls.
+	 * 
+	 * 
+	 * for one recursive call - O(1)
+	 * for the entire recursion - O(log_d_(n)) 
+	 */
+	private void heapifyUp(int i) {
+		if (i == 0)
+			return;
+		DHeap_Item child = array[i];
+		int place = parent(i);
+		DHeap_Item parent = array[place];
+		if (parent.getKey() > child.getKey()){
+			switchPlaces(array, i, place);
+			heapifyUp(place);
+		}
 	}
 
 	/**
@@ -115,7 +142,7 @@ public class DHeap {
 	 * 
 	 * postcondition: isHeap()
 	 * 
-	 * O(dlogn)
+	 * O(dlog_d_(n))
 	 */
 	public void Delete_Min() {
 		if (size == 0)
@@ -131,25 +158,25 @@ public class DHeap {
 	 * Switching the heap item in place i with it's minimum
 	 * child if needed. Then it calls itself with the child's
 	 * place as the new i.
-	 * There may be O(logn) calls.
+	 * There may be O(log_d_(n)) calls.
 	 * 
 	 * 
 	 * for one recursive call - O(d)
-	 * for the entire recursion - O(dlogn) 
+	 * for the entire recursion - O(dlog_d_(n)) 
 	 */
 	private void heapifyDown(int i) {
 		if (size<2)
 			return;
 		int min = array[i].getKey();
 		DHeap_Item minItem = null;
-		DHeap_Item tmp;
+		DHeap_Item child;
 		for (int j=1;j<=d;j++){
 			int place = child(i,j);	
 			if (place < size){
-				tmp = array[place];
-				if (tmp.getKey()<min){
-					min = tmp.getKey();
-					minItem = tmp;
+				child = array[place];
+				if (child.getKey()<min){
+					min = child.getKey();
+					minItem = child;
 				}
 			}
 		}
@@ -197,7 +224,7 @@ public class DHeap {
 	 * 
 	 * postcondition: isHeap()
 	 * 
-	 * O(dlogn)
+	 * O(dlog_d_(n))
 	 * O(?)
 	 */
 	public void Delete(DHeap_Item item) {
@@ -212,7 +239,7 @@ public class DHeap {
 	 * Return a sorted array containing the same integers in the input array.
 	 * Sorting should be done using the DHeap.
 	 * 
-	 * O(dnlogn)
+	 * O(dnlog_d_(n))
 	 */
 	public static int[] DHeapSort(int[] array) {
 		int n = array.length;
@@ -245,21 +272,34 @@ public class DHeap {
 		array1[place2].setPos(place2);		
 	}
 	
-	public static void main(String[] args) {
-		DHeap hip1 = new DHeap(3, 5);
-		System.out.println(hip1.child(0,4));
-		DHeap_Item[] hip = new DHeap_Item[5];
-		hip[0] = new DHeap_Item("a",15); 
-		hip[1] = new DHeap_Item("b",10);
-		hip[2] = new DHeap_Item("c",9);
+	public void print(){	//to delete in the end, just for checking
+		int i = 0;
+		while (i < size){
+			System.out.print(array[i].getName() + " ");
+			if (i%d == 0)
+				System.out.println(" ");
+			i++;
+		}
+	}
+	
+	public static void main(String[] args) { //to delete in the end
+		DHeap hip1 = new DHeap(3, 10);
+		DHeap_Item[] hip = new DHeap_Item[10];
+		hip[0] = new DHeap_Item("a",3); 
+		hip[1] = new DHeap_Item("b",20);
+		hip[2] = new DHeap_Item("c",8);
 		hip[3] = new DHeap_Item("d",4);
-		hip[4] = new DHeap_Item("e",5);
-		//for (DHeap_Item i:hip)
-		//	System.out.println(i.getName());
-		hip1.arrayToHeap(hip);
-		//for (DHeap_Item i:hip1.array)
-			//System.out.println(i.getName());
-		System.out.println(hip1.Get_Min().getName());
+		hip[4] = new DHeap_Item("e",29);
+		hip[5] = new DHeap_Item("f",31);
+		hip[6] = new DHeap_Item("g",33);
+		hip[7] = new DHeap_Item("h",41);
+		hip[8] = new DHeap_Item("i",19);
+		for (DHeap_Item i:hip)
+			hip1.Insert(i);
+		hip1.Decrease_Key(hip[4],27);
+		hip1.print();
+		System.out.println("");
+		System.out.println(hip1.isHeap());
 	}
 	
 }
